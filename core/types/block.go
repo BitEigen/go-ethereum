@@ -78,7 +78,7 @@ type Header struct {
 	Extra        []byte         `json:"extraData"        gencodec:"required"`
 	MixDigest    common.Hash    `json:"mixHash"`
 	Nonce        BlockNonce     `json:"nonce"`
-	OriginalHash common.Hash    `json:"hash"             gencodec:"required"     rlp:"-"`
+	OriginalHash common.Hash    `json:"hash"                                  rlp:"-"`
 
 	// BaseFee was added by EIP-1559 and is ignored in legacy headers.
 	BaseFee *big.Int `json:"baseFeePerGas" rlp:"optional"`
@@ -113,8 +113,10 @@ type headerMarshaling struct {
 // Hash returns the block hash of the header, which is simply the keccak256 hash of its
 // RLP encoding.
 func (h *Header) Hash() common.Hash {
-  return h.OriginalHash
-	// return rlpHash(h)
+	if h.OriginalHash != (common.Hash{}) {
+		return h.OriginalHash
+	}
+	return rlpHash(h)
 }
 
 var headerSize = common.StorageSize(reflect.TypeOf(Header{}).Size())
